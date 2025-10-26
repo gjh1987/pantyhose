@@ -1,0 +1,33 @@
+{
+  "name": "pantyhose_server_tool",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri_run": "tauri dev"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "@vueuse/core": "^13.5.0",
+    "ansi-to-html": "^0.7.2",
+    "element-plus": "^2.10.4",
+    "fast-xml-parser": "^5.2.5",
+    "pinia": "^3.0.3",
+    "protobufjs": "^7.5.4",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1",
+    "vue3-json-editor": "^1.1.5"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.3",
+    "vue-tsc": "^2.1.10"
+  }
+}

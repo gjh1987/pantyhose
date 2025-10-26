@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <servers>
+        <group name="master">
+            <server id="1" back_tcp_port="3011"/>
+        </group>
+        
+        <group name="session">
+            <server id="11" back_tcp_port="3111" front_tcp_port="3112" front_ws_port="3113"/>
+            <server id="12" back_tcp_port="3121" front_tcp_port="3122" front_ws_port="3123"/>
+        </group>
+        
+        <group name="chat">
+            <server id="21" back_tcp_port="3211"/>
+            <server id="22" back_tcp_port="3221"/>
+        </group>
+    </servers>
+
+    <log debug="terminal|file"
+        info="terminal|file"
+        net="terminal|file"
+        warn="terminal|file"
+        err="terminal|file"/>
+
+    <author key="djch&amp;hc1"/>
+    <run_time worker_threads="4"/>
+</config>

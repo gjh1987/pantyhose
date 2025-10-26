@@ -1,0 +1,20 @@
+[package]
+name = "proto-id-tool"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "proto-id-tool"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+walkdir = "2.3"
+regex = "1.7"
+quote = "1.0"
+proc-macro2 = "1.0"
+anyhow = "1.0"
+prost = "0.12"
+prost-build = { version = "0.12", features = ["cleanup-markdown"] }
+protobuf-parse = "3.2"
+protoc-bin-vendored = "3.0"

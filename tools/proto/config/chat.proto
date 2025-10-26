@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package chat;
+
+// 聊天测试请求
+message ChatTestBRequest {
+    string content = 1;
+}
+
+// 聊天测试响应
+message ChatTestBResponse {
+    string content = 1;
+}

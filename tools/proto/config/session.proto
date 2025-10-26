@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package session;
+
+// Login request from front (F suffix for front messages)
+message LoginFRequest {
+    string token = 1;
+}
+
+// Login response
+message LoginFResponse {
+    uint64 player_id = 1;
+    string name = 2;
+}

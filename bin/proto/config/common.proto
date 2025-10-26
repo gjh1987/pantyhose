@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package common;
+
+// 基础消息（空消息）
+message BaseMessage {
+}
+
+// 带序列号的消息
+message SerialMessage {
+    uint32 msg_unique_id = 1;  // 消息ID
+}

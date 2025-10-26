@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package cluster;
+
+import "common.proto";
+
+// 服务器配置信息
+message ServerConfig {
+    uint32 server_id = 1;          // 服务器ID
+    string server_type = 2;         // 服务器类型
+    string back_host = 3;           // 后端连接地址
+    uint32 back_tcp_port = 4;       // 后端TCP端口
+}
+
+// 节点注册请求 (继承SerialMessage)
+message NodeRegisterBRequest {
+    uint32 msg_unique_id = 1;               // 消息ID (从SerialMessage继承)
+    string client_token = 2;        // 客户端令牌
+    ServerConfig server_config = 3; // 服务器配置
+}
+
+// 节点注册响应 (继承SerialMessage)
+message NodeRegisterBResponse {
+    uint32 msg_unique_id = 1;                          // 消息ID (从SerialMessage继承)
+    repeated ServerConfig server_list = 2;     // 服务器列表
+}
+
+// 节点连接请求 (继承SerialMessage)
+message NodeConnectBRequest {
+    uint32 msg_unique_id = 1;               // 消息ID (从SerialMessage继承)
+    string client_token = 2;        // 客户端令牌
+    ServerConfig server_config = 3; // 服务器配置
+}
+
+// 节点连接响应 (继承SerialMessage)
+message NodeConnectBResponse {
+    uint32 msg_unique_id = 1;               // 消息ID (从SerialMessage继承)
+    ServerConfig server_config = 2; // 服务器配置
+}
+
+// 节点注册通知
+message NodeRegisterBNotify {
+    ServerConfig server_config = 1; // 服务器配置
+}
+
+// RPC消息转发请求（前端）
+message RpcMessageFRequest {
+    uint32 msg_unique_id = 1;  // 消息唯一ID
+    string server_type = 2;    // 目标服务器类型
+    uint32 msg_id = 3;          // 消息ID
+    bytes message = 4;          // 消息内容（字节数组）
+}
+
+// RPC消息转发响应（前端）
+message RpcMessageFResponse {
+    uint32 msg_unique_id = 1;  // 消息唯一ID
+    uint32 msg_id = 2;          // 消息ID
+    bytes message = 3;          // 消息内容（字节数组）
+}
+
+// RPC消息转发通知（前端） - 不需要响应
+message RpcMessageFNotify {
+    string server_type = 1;    // 目标服务器类型
+    uint32 msg_id = 2;          // 消息ID
+    bytes message = 3;          // 消息内容（字节数组）
+}
+
+// RPC消息转发请求（后端）
+message RpcForwardMessageBRequest {
+    uint32 msg_unique_id = 1;  // 消息唯一ID
+    uint64 front_session_id = 2; // 前端会话ID
+    map<string, int32> meta = 3; // 元数据
+    uint32 msg_id = 4;          // 消息ID
+    bytes message = 5;          // 消息内容（字节数组）
+}
+
+// RPC消息转发响应（后端）
+message RpcForwardMessageBResponse {
+    uint32 msg_unique_id = 1;  // 消息唯一ID
+    uint64 front_session_id = 2; // 前端会话ID
+    map<string, int32> meta = 3; // 元数据
+    uint32 msg_id = 4;          // 消息ID
+    bytes message = 5;          // 消息内容（字节数组）
+}
+
+// RPC消息转发通知（后端） - 不需要响应
+message RpcForwardMessageBNotify {
+    uint32 msg_id = 1;          // 消息ID
+    uint64 front_session_id = 2; // 前端会话ID
+    map<string, int32> meta = 3; // 元数据
+    bytes message = 4;          // 消息内容（字节数组）
+}
