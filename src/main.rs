@@ -90,13 +90,13 @@ async fn main() {
         return;
     };
    
-    if !server.init(server_id, &config) {
+    if server.init(server_id, &config) == false {
         error!("Failed to initialize server");
         server.dispose();
         return;
     }
     
-    if !server.late_init() {
+    if server.late_init() == false {
         error!("Failed in late initialization");
         server.dispose();
         return;

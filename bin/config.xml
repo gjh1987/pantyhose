@@ -24,4 +24,17 @@
 
     <author key="djch&amp;hc1"/>
     <run_time worker_threads="4"/>
+
+    <!-- MongoDB 数据库配置 -->
+    <mongodb>
+        <connection_string>mongodb://localhost:27017</connection_string>
+        <database_name>pantyhose</database_name>
+        <options>
+            <max_pool_size>50</max_pool_size>
+            <min_pool_size>10</min_pool_size>
+            <max_idle_time_ms>30000</max_idle_time_ms>
+            <connect_timeout_ms>5000</connect_timeout_ms>
+            <socket_timeout_ms>30000</socket_timeout_ms>
+        </options>
+    </mongodb>
 </config>

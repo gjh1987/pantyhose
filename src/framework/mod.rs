@@ -11,3 +11,4 @@ pub mod msg;
 pub mod timer;
 pub mod author;
 pub mod task;
+pub mod db;

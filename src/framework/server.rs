@@ -9,6 +9,7 @@ use crate::framework::msg::{MsgProcessor, ProtobufMsgProcessor};
 use crate::framework::timer::TimeManager;
 use crate::framework::task::TaskManager;
 use crate::framework::rpc::ForwardManager;
+use crate::framework::db::db_manager::DBManager;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info};
@@ -45,6 +46,7 @@ pub struct Server {
     time_manager: TimeManager,
     task_manager: TaskManager,
     forward_manager: ForwardManager,
+    db_manager: DBManager,
 
     // notify
     is_running:bool,
@@ -55,7 +57,7 @@ impl ServerTrait for Server {
     fn init(&mut self, server_id: u32, config: &Config) -> bool {
         // Initialize config manager first
         {
-            if !self.config_manager.init_from_config(config) {
+            if self.config_manager.init_from_config(config) == false {
                 error!("Failed to initialize config manager");
                 return false;
             }
@@ -81,7 +83,7 @@ impl ServerTrait for Server {
             self.group_name.clone(), 
             server_id, None
         );
-        if !success {
+        if success == false {
             return false;
         }
         self._log_guard = log_guard;
@@ -90,19 +92,19 @@ impl ServerTrait for Server {
         self.network_engine.set_notify(Arc::clone(&self.notify));
         
         // Initialize RPC manager with session managers
-        if !self.rpc_manager.init(&mut self.front_session_manager, &mut self.back_session_manager) {
+        if self.rpc_manager.init(&mut self.front_session_manager, &mut self.back_session_manager) == false {
             error!("Failed to initialize RPC manager");
             return false;
         }
         
         // Initialize router manager
-        if !self.router_manager.init() {
+        if self.router_manager.init() == false {
             error!("Failed to initialize router manager");
             return false;
         }
         
         // Initialize task manager with notify
-        if !self.task_manager.init(Arc::clone(&self.notify)) {
+        if self.task_manager.init(Arc::clone(&self.notify)) == false {
             error!("Failed to initialize task manager");
             return false;
         }
@@ -124,19 +126,19 @@ impl ServerTrait for Server {
         );
         
         // Initialize back message dispatcher
-        if !self.back_message_dispatcher.init(&mut self.network_event_manager, &mut self.back_session_manager) {
+        if self.back_message_dispatcher.init(&mut self.network_event_manager, &mut self.back_session_manager) == false {
             error!("Failed to initialize back message dispatcher");
             return false;
         }
         
         // Initialize front message dispatcher
-        if !self.front_message_dispatcher.init(&mut self.network_event_manager, &mut self.front_session_manager) {
+        if self.front_message_dispatcher.init(&mut self.network_event_manager, &mut self.front_session_manager) == false {
             error!("Failed to initialize front message dispatcher");
             return false;
         }
         
         // Initialize forward manager
-        if !self.forward_manager.init(
+        if self.forward_manager.init(
             &mut self.front_message_dispatcher,
             &mut self.back_message_dispatcher,
             &mut self.router_manager,
@@ -151,12 +153,12 @@ impl ServerTrait for Server {
         }
         
         // Initialize server manager
-        if !self.server_manager.init() {
+        if self.server_manager.init() == false {
             error!("Failed to initialize server manager");
             return false;
         }
         
-        if !self.cluster_manager.init(
+        if self.cluster_manager.init(
             self.group_name.clone(),
             &mut self.network_engine,
             &mut self.back_session_manager,
@@ -183,7 +185,15 @@ impl ServerTrait for Server {
             &self.group_name, 
             master_server_id,
             self.config_manager.get_author_key().to_string());
-        
+
+        // Initialize DB manager if MongoDB configuration is present
+        if let Some(mongodb_config) = &config.mongodb {
+            if self.db_manager.init(mongodb_config) == false {
+                error!("Failed to initialize DB manager");
+                return false;
+            }
+        }
+
         true
     }
 
@@ -226,7 +236,10 @@ impl ServerTrait for Server {
         
         // Clear all timers (cleanup)
         self.time_manager.clear_all_timers();
-        
+
+        // Dispose DB manager
+        self.db_manager.dispose();
+
         // TODO: 实现其他资源清理
     }
 
@@ -248,7 +261,7 @@ impl ServerTrait for Server {
         self.is_running = true;
         loop {
             // 先处理网络事件队列
-            while !event_queue.is_empty().await {
+            while event_queue.is_empty().await == false {
                 if let Some(mut event) = event_queue.pop().await {
                     // 使用EventManager分发事件给注册的处理器
                     self.network_event_manager.dispatch(&mut event);
@@ -303,6 +316,7 @@ impl Server {
             time_manager: TimeManager::new(),
             task_manager: TaskManager::new(),
             forward_manager: ForwardManager::new(),
+            db_manager: DBManager::new(),
 
             is_running:(false),
             notify:(Arc::new(Notify::new())),

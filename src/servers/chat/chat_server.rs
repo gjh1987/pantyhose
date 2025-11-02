@@ -23,7 +23,7 @@ impl ChatServer {
 
 impl ServerTrait for ChatServer {
     fn init(&mut self, server_id: u32, config: &Config) -> bool {
-        if !self.base_server.init(server_id, config) {
+        if self.base_server.init(server_id, config) == false {
             return false;
         }
         

@@ -29,16 +29,16 @@ impl SessionServer {
 impl ServerTrait for SessionServer {
     fn init(&mut self, server_id: u32, config: &Config) -> bool {
         // 先初始化基础服务器
-        if !self.base_server.init(server_id, config) {
+        if self.base_server.init(server_id, config) == false {
             return false;
         }
         
         // 初始化管理器
-        if !self.unlogin_player_manager.init() {
+        if self.unlogin_player_manager.init() == false {
             return false;
         }
         
-        if !self.player_manager.init() {
+        if self.player_manager.init() == false {
             return false;
         }
         
@@ -47,7 +47,7 @@ impl ServerTrait for SessionServer {
     
     fn lateInit(&mut self) -> bool {
         // 先调用基础服务器的lateInit
-        if !self.base_server.lateInit() {
+        if self.base_server.lateInit() == false {
             return false;
         }
         

@@ -15,7 +15,8 @@ pub struct Config {
     pub run_time: RunTime,
     pub servers: Servers,
     pub log: Log,
-    pub author:Author,
+    pub author: Author,
+    pub mongodb: Option<MongoDBConfig>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -76,6 +77,22 @@ pub struct RunTime {
     pub worker_threads: u32,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct MongoDBConfig {
+    pub connection_string: String,
+    pub database_name: String,
+    pub options: MongoDBOptions,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct MongoDBOptions {
+    pub max_pool_size: u32,
+    pub min_pool_size: u32,
+    pub max_idle_time_ms: u32,
+    pub connect_timeout_ms: u32,
+    pub socket_timeout_ms: u32,
+}
+
 impl Config {
     pub fn find_server(&self, server_id: u32) -> Option<(&ServerConfig, &ServerGroup)> {
         for group in &self.servers.group {
@@ -88,7 +105,7 @@ impl Config {
 
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, Box<dyn std::error::Error>> {
         let path_ref = path.as_ref();
-        if !path_ref.exists() {
+        if path_ref.exists() == false {
             return Err(format!("Config file does not exist: {}", path_ref.display()).into());
         }
 
