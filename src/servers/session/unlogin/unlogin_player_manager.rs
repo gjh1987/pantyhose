@@ -23,13 +23,6 @@ impl UnloginPlayerManager {
 
     /// 初始化管理器
     pub fn init(&mut self) -> bool {
-        debug!("UnloginPlayerManager initializing");
-        
-        // 清空现有数据
-        self.players.clear();
-        
-        // 设置登录超时时间（可以从配置读取）
-        self.login_timeout = 60;
         
         true
     }
@@ -57,11 +50,6 @@ impl UnloginPlayerManager {
         player
     }
 
-    /// 获取未登录玩家
-    pub fn get_player(&self, session_id: u64) -> Option<&UnloginPlayer> {
-        self.players.get(&session_id)
-    }
-
     /// 获取未登录玩家（可变引用）
     pub fn get_player_mut(&mut self, session_id: u64) -> Option<&mut UnloginPlayer> {
         self.players.get_mut(&session_id)
@@ -70,6 +58,11 @@ impl UnloginPlayerManager {
     /// 检查玩家是否存在
     pub fn has_player(&self, session_id: u64) -> bool {
         self.players.contains_key(&session_id)
+    }
+
+    /// 获取当前未登录玩家数量
+    pub fn get_player_count(&self) -> usize {
+        self.players.len()
     }
 
     /// 清理超时的未登录玩家
@@ -99,11 +92,6 @@ impl UnloginPlayerManager {
         timeout_sessions
     }
 
-    /// 获取当前未登录玩家数量
-    pub fn get_player_count(&self) -> usize {
-        self.players.len()
-    }
-
     /// 获取所有未登录玩家的会话ID
     pub fn get_all_session_ids(&self) -> Vec<u64> {
         self.players.keys().cloned().collect()
@@ -125,17 +113,6 @@ impl UnloginPlayerManager {
             return true;
         }
         false
-    }
-
-    /// 设置登录超时时间
-    pub fn set_login_timeout(&mut self, timeout: u64) {
-        self.login_timeout = timeout;
-        info!("Login timeout set to {} seconds", timeout);
-    }
-
-    /// 获取登录超时时间
-    pub fn get_login_timeout(&self) -> u64 {
-        self.login_timeout
     }
 
     /// 清理管理器

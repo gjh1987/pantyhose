@@ -547,3 +547,75 @@ tracing::info!("Connected to database: {}", db_name);
 - **保持日志质量**：由开发者手动添加的调试信息更有针对性和价值
 
 **违反此限制的代码将需要重新审查和修改。**
+
+### ⚠️ 数据库数据类规范
+
+**数据库相关的数据类（如 DBPlayer）应该是纯粹的数据类，字段都是 public 的，不需要提供 getter、setter 或任何业务逻辑方法。**
+
+#### 数据库数据类设计原则
+```rust
+// ✅ 正确：数据库数据类使用 public 字段，只包含数据
+pub struct DBPlayer {
+    pub player_id: u64,
+    pub nick_name: String,
+    pub level: u32,
+}
+
+impl DBPlayer {
+    /// 创建新的数据库玩家信息
+    pub fn new(player_id: u64, nick_name: String, level: u32) -> Self {
+        Self {
+            player_id,
+            nick_name,
+            level,
+        }
+    }
+}
+
+// 直接访问字段，不需要 getter/setter
+let player_id = db_player.player_id;
+db_player.nick_name = new_name;
+```
+
+#### 禁止的写法
+```rust
+// ❌ 错误：数据库数据类不需要 getter/setter
+pub struct DBPlayer {
+    player_id: u64,  // 私有字段
+    nick_name: String,
+    level: u32,
+}
+
+impl DBPlayer {
+    pub fn get_player_id(&self) -> u64 { self.player_id }  // 不需要
+    pub fn set_nick_name(&mut self, name: String) { self.nick_name = name; }  // 不需要
+}
+
+// ❌ 错误：数据库数据类不应该包含业务逻辑方法
+impl DBPlayer {
+    pub fn has_reached_level(&self, target_level: u32) -> bool {  // 不需要
+        self.level >= target_level
+    }
+
+    pub fn get_summary(&self) -> String {  // 不需要
+        format!("玩家[{}] {} (等级{})", self.player_id, self.nick_name, self.level)
+    }
+}
+```
+
+#### 适用场景
+- **数据库实体类**：从数据库加载的数据对象
+- **数据传输对象**：在服务器间传输的数据结构
+- **配置数据类**：存储配置信息的简单结构
+
+#### 允许的方法
+- **构造函数**：`new()` 方法用于方便创建实例
+- **无业务逻辑**：只包含数据字段和构造函数
+
+#### 原因
+- **简化代码**：避免不必要的封装和业务逻辑
+- **提高性能**：直接字段访问更快
+- **保持一致性**：整个项目使用统一的数据类设计模式
+- **职责分离**：业务逻辑应该在专门的业务类中实现
+
+**注意**：此规范仅适用于纯数据类，业务逻辑类仍然需要适当的封装。
